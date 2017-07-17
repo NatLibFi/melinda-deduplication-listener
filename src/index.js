@@ -65,27 +65,14 @@ async function start() {
 function onChange(changes: Array<Change>) {
   logger.log('verbose', `Handling ${changes.length} changes.`);
 
-  return serial(changes.map((change: Change) => () => {
-    switch(change.library) {
-      case 'FIN01': return onChangeService.handle(change);
-      default: return Promise.reject(new Error(`Could not find handler for base ${change.library}`));
+  for (const change of changes) {
+    try {
+      switch(change.library) {
+        case 'FIN01': return onChangeService.handle(change);
+        default: return Promise.reject(new Error(`Could not find handler for base ${change.library}`));
+      }
+    } catch(error) {
+      logger.log('error', error.message, error);
     }
-  })).catch(error => {
-    logger.log('error', error.message, error);
-  });
-}
-
-function serial(funcs: Array<() => Promise<any>>) {
-  return funcs.reduce((promise, func) => {
-    return new Promise((resolve) => {
-      promise.then((all) => {
-        func()
-          .then(result => resolve(_.concat(all, result)))
-          .catch(error => {
-            logger.log('error', error.message, error);
-            resolve(_.concat(all, error));
-          });
-      });
-    });
-  }, Promise.resolve([]));
+  }
 }

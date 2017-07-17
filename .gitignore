@@ -7,3 +7,4 @@ tnsnames.ora
 .*-cursors.json
 .libtest*
 setup_env.sh
+start_ssh*

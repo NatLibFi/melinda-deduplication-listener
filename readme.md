@@ -12,13 +12,31 @@ export OCI_LIB_DIR=/opt/instantclient_12_2
 export OCI_INC_DIR=/opt/instantclient_12_2/sdk/include
 
 npm install
+
 ```
+
+Build the application: 
+```
+npm run build 
+```
+
+Intall dependences for the built application:
+```
+cd build
+npm install --prod
+```
+
+The build result will be in `build/` directory and is runnable from there. For example:
+```
+node build/index.js
+```
+
 
 # Running
 
 The tnsnames.ora file must be used for connection. This can be done with TNS_ADMIN environment variable.
 
-Example:
+Example, assuming that tnsnames.ora is in `pwd`:
 ```
 TNS_ADMIN=`pwd` LD_LIBRARY_PATH=/opt/instantclient_12_2/ node index.js
 ```
@@ -33,6 +51,10 @@ ALEPH =
      (SID = ALEPH20)
    )
  )
+```
+
+For development use: `npm run dev`
+
 
 ## Configuration
 The following environment variables are used to configure the system:

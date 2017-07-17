@@ -11,23 +11,22 @@ function constructor(alephRecordService: AlephRecordService, dataStoreService: D
   async function handle(change) {
 
     // read from aleph
-    logger.log('info', `Reading record (${change.library})${change.recordId}) from Aleph`);
+    logger.log('info', `Reading record (${change.library})${change.recordId} from Aleph`);
     const record = await alephRecordService.loadRecord(change.library, change.recordId);
 
     // save to datastore
-    logger.log('info', `Saving record (${change.library})${change.recordId}) to data store`);
+    logger.log('info', `Saving record (${change.library})${change.recordId} to data store`);
     await dataStoreService.addRecord(change.library, change.recordId, record);
 
     // read candidates from datastore
-    logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId}) from data store`);
+    logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId} from data store`);
     const duplicateCandidates = await dataStoreService.getDuplicateCandidates(change.library, change.recordId);
 
     // push candidates to queue
-    logger.log('info', `Pushing duplicate candidates for record (${change.library})${change.recordId}) to the candidate queue`);
+    logger.log('info', `Pushing duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
     await candidateQueueService.pushCandidates(duplicateCandidates);
     
   }
-
 
   return {
     handle
