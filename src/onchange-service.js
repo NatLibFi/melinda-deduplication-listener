@@ -16,7 +16,7 @@ function constructor(alephRecordService: AlephRecordService, dataStoreService: D
 
     // save to datastore
     logger.log('info', `Saving record (${change.library})${change.recordId} to data store`);
-    await dataStoreService.addRecord(change.library, change.recordId, record);
+    await dataStoreService.saveRecord(change.library, change.recordId, record);
 
     // read candidates from datastore
     logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId} from data store`);

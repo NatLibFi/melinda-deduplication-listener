@@ -39,9 +39,10 @@ const dbConfig = {
 
 const XServerUrl = utils.readEnvironmentVariable('X_SERVER');
 const melindaEndpoint = utils.readEnvironmentVariable('MELINDA_API', 'http://libtest1.csc.fi:8992/API');
+const datastoreAPI = utils.readEnvironmentVariable('DATASTORE_API', 'http://localhost:8080');
 
 const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, {});
-const dataStoreService = DataStoreService.createDataStoreService();
+const dataStoreService = DataStoreService.createDataStoreService(datastoreAPI);
 const candidateQueueService = CandidateQueueService.createCandidateQueueService();
 const onChangeService = new OnChangeService(alephRecordService, dataStoreService, candidateQueueService);
 
@@ -60,6 +61,14 @@ async function start() {
   alephChangeListener.start();
   
   logger.log('info', 'Waiting for changes');
+
+  if (process.env.NODE_ENV == 'dev') {
+    const randomChange = () => ({library: 'FIN01', recordId: _.padStart(10000 + Math.round(Math.random()*300000), 9, '0')});
+    onChange([randomChange()]);
+    setInterval(() => {
+      onChange([randomChange()]);
+    }, 5000);
+  }
 }
 
 function onChange(changes: Array<Change>) {
