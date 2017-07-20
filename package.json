@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "aleph-change-listener": "git+https://github.com/NatLibFi/aleph-change-listener.git#97393ba3812a5e3a864cd3556bda1bcffe5b276a",
+    "amqplib": "^0.5.1",
     "debug": "^2.6.8",
     "lodash": "^4.17.4",
     "oracledb": "^1.13.1"

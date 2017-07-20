@@ -25,7 +25,8 @@ function constructor(alephRecordService: AlephRecordService, dataStoreService: D
     // push candidates to queue
     logger.log('info', `Pushing duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
     await candidateQueueService.pushCandidates(duplicateCandidates);
-    
+
+    logger.log('info', 'Change was handled succesfully');
   }
 
   return {
