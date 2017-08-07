@@ -2,6 +2,8 @@ language: node_js
 node_js:
   - "7"
   - "node"
+install:
+  - npm install --ignore-scripts
 git:
     submodules: false
 before_install:
