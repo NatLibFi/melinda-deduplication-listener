@@ -44,7 +44,7 @@ const XServerUrl = utils.readEnvironmentVariable('X_SERVER');
 const melindaEndpoint = utils.readEnvironmentVariable('MELINDA_API', 'http://libtest1.csc.fi:8992/API');
 const datastoreAPI = utils.readEnvironmentVariable('DATASTORE_API', 'http://localhost:8080');
 
-const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, {});
+const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl);
 const dataStoreService = DataStoreService.createDataStoreService(datastoreAPI);
 
 start().catch(error => { 
