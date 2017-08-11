@@ -39,7 +39,7 @@ const dbConfig = {
   connectString: utils.readEnvironmentVariable('ORACLE_CONNECT_STRING')
 };
 
-const CANDIDATE_QUEUE_AMQP_HOST = utils.readEnvironmentVariable('CANDIDATE_QUEUE_AMQP_HOST');
+const CANDIDATE_QUEUE_AMQP_URL = utils.readEnvironmentVariable('CANDIDATE_QUEUE_AMQP_URL');
 
 const XServerUrl = utils.readEnvironmentVariable('X_SERVER');
 const melindaEndpoint = utils.readEnvironmentVariable('MELINDA_API', 'http://libtest1.csc.fi:8992/API');
@@ -56,7 +56,7 @@ async function start() {
   logger.log('info', 'Connecting to oracle');
   const connection = await oracledb.getConnection(dbConfig);
 
-  const candidateQueueConnection = await amqp.connect(CANDIDATE_QUEUE_AMQP_HOST);
+  const candidateQueueConnection = await amqp.connect(CANDIDATE_QUEUE_AMQP_URL);
   const channel = await candidateQueueConnection.createChannel();
   const candidateQueueService = CandidateQueueConnector.createCandidateQueueConnector(channel);
   const onChangeService = new OnChangeService(alephRecordService, dataStoreService, candidateQueueService);
