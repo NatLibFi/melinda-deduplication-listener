@@ -17,6 +17,7 @@ const DataStoreService = require('melinda-deduplication-common/utils/data-store-
 
 const utils = require('melinda-deduplication-common/utils/utils');
 const OnChangeService = require('./onchange-service');
+const DeduplicationCommandInterface = require('./deduplication-command-interface');
 
 const Z106_BASES = utils.readArrayEnvironmentVariable('Z106_BASES', ['FIN01']);
 const Z115_BASE = utils.readEnvironmentVariable('Z115Base', 'USR00');
@@ -60,6 +61,9 @@ async function start() {
   const candidateQueueService = CandidateQueueService.createCandidateQueueService(channel);
   const onChangeService = new OnChangeService(alephRecordService, dataStoreService, candidateQueueService);
 
+  const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreService, onChange);
+
+  await deduplicationCommandInterface.listen(3001);
 
   logger.log('info', 'Creating aleph changelistener');
   const alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
@@ -77,7 +81,7 @@ async function start() {
     }, 5000);
   }
 
-  function onChange(changes: Array<Change>) {
+  async function onChange(changes: Array<Change>) {
     logger.log('verbose', `Handling ${changes.length} changes.`);
 
     for (const change of changes) {
