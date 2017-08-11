@@ -6,7 +6,7 @@ const promisify = require('es6-promisify');
 const _ = require('lodash');
 const MarcRecord = require('marc-record-js');
 
-function createDeduplicationCommandInterface(dataStoreService, onChange) {
+function createDeduplicationCommandInterface(dataStoreConnector, onChange) {
   const app = express();
   const listen = promisify(app.listen, app);
   app.use(bodyParser.json({ limit: '1000kb' }));
@@ -43,7 +43,7 @@ function createDeduplicationCommandInterface(dataStoreService, onChange) {
     logger.log('info', 'read request for record', req.params);
 
     try {
-      const record = await dataStoreService.loadRecord(base, recordId);
+      const record = await dataStoreConnector.loadRecord(base, recordId);
       res.send(record);
     } catch(error) {
       if (error.name === 'NOT_FOUND') {
@@ -63,11 +63,14 @@ function createDeduplicationCommandInterface(dataStoreService, onChange) {
 
     try {
       const record = new MarcRecord(req.body);
-      await dataStoreService.saveRecord(base, recordId, record);
+      await dataStoreConnector.saveRecord(base, recordId, record);
       res.sendStatus(HttpStatus.OK);
     } catch(error) {
       if (error.name === 'NOT_FOUND') {
         return res.sendStatus(HttpStatus.NOT_FOUND);
+      }
+      if (error.name === 'INVALID_RECORD') {
+        return res.status(HttpStatus.BAD_REQUEST).send(error.message);
       }
       logger.log('error', error);
       res.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -83,7 +86,7 @@ function createDeduplicationCommandInterface(dataStoreService, onChange) {
     logger.log('info', 'read request for specific version of record', req.params);
 
     try {
-      const record = await dataStoreService.loadRecordByTimestamp(base, recordId, timestamp);
+      const record = await dataStoreConnector.loadRecordByTimestamp(base, recordId, timestamp);
       res.send(record);
     } catch(error) {
       if (error.name === 'NOT_FOUND') {
@@ -102,7 +105,7 @@ function createDeduplicationCommandInterface(dataStoreService, onChange) {
     logger.log('info', 'read request of history for record', req.params);
 
     try {
-      const record = await dataStoreService.loadRecordHistory(base, recordId);
+      const record = await dataStoreConnector.loadRecordHistory(base, recordId);
       res.send(record);
     } catch(error) {
       if (error.name === 'NOT_FOUND') {

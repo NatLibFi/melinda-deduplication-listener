@@ -46,7 +46,7 @@ const melindaEndpoint = utils.readEnvironmentVariable('MELINDA_API', 'http://lib
 const datastoreAPI = utils.readEnvironmentVariable('DATASTORE_API', 'http://localhost:8080');
 
 const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl);
-const dataStoreService = DataStoreConnector.createDataStoreConnector(datastoreAPI);
+const dataStoreConnector = DataStoreConnector.createDataStoreConnector(datastoreAPI);
 
 start().catch(error => { 
   logger.log('error', error.message, error);
@@ -59,9 +59,9 @@ async function start() {
   const candidateQueueConnection = await amqp.connect(CANDIDATE_QUEUE_AMQP_URL);
   const channel = await candidateQueueConnection.createChannel();
   const candidateQueueService = CandidateQueueConnector.createCandidateQueueConnector(channel);
-  const onChangeService = new OnChangeService(alephRecordService, dataStoreService, candidateQueueService);
+  const onChangeService = new OnChangeService(alephRecordService, dataStoreConnector, candidateQueueService);
 
-  const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreService, onChange);
+  const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreConnector, onChange);
 
   await deduplicationCommandInterface.listen(3001);
 
