@@ -1,12 +1,12 @@
 // @flow
 import type { OnChangeService } from './onchange-service.flow';
 import type { AlephRecordService } from 'types/aleph-record-service.flow';
-import type { DataStoreService } from 'types/data-store-service.flow';
-import type { CandidateQueueService } from 'types/candidate-queue-service.flow';
+import type { DataStoreConnector } from 'types/datastore-connector.flow';
+import type { CandidateQueueConnector } from 'types/candidate-queue-connector.flow';
 
 const logger = require('melinda-deduplication-common/utils/logger');
 
-function constructor(alephRecordService: AlephRecordService, dataStoreService: DataStoreService, candidateQueueService: CandidateQueueService): OnChangeService {
+function constructor(alephRecordService: AlephRecordService, dataStoreConnector: DataStoreConnector, candidateQueueConnector: CandidateQueueConnector): OnChangeService {
 
   async function handle(change) {
 
@@ -16,15 +16,15 @@ function constructor(alephRecordService: AlephRecordService, dataStoreService: D
 
     // save to datastore
     logger.log('info', `Saving record (${change.library})${change.recordId} to data store`);
-    await dataStoreService.saveRecord(change.library, change.recordId, record);
+    await dataStoreConnector.saveRecord(change.library, change.recordId, record);
 
     // read candidates from datastore
     logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId} from data store`);
-    const duplicateCandidates = await dataStoreService.getDuplicateCandidates(change.library, change.recordId);
+    const duplicateCandidates = await dataStoreConnector.getDuplicateCandidates(change.library, change.recordId);
 
     // push candidates to queue
     logger.log('info', `Pushing duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
-    await candidateQueueService.pushCandidates(duplicateCandidates);
+    await candidateQueueConnector.pushCandidates(duplicateCandidates);
 
     logger.log('info', 'Change was handled succesfully');
   }

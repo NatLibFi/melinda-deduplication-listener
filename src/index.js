@@ -12,8 +12,8 @@ const amqp = require('amqplib');
 
 const AlephChangeListener = require('aleph-change-listener');
 const MelindaRecordService = require('melinda-deduplication-common/utils/melinda-record-service');
-const CandidateQueueService = require('melinda-deduplication-common/utils/candidate-queue-service');
-const DataStoreService = require('melinda-deduplication-common/utils/data-store-service');
+const CandidateQueueConnector = require('melinda-deduplication-common/utils/candidate-queue-connector');
+const DataStoreConnector = require('melinda-deduplication-common/utils/datastore-connector');
 
 const utils = require('melinda-deduplication-common/utils/utils');
 const OnChangeService = require('./onchange-service');
@@ -46,7 +46,7 @@ const melindaEndpoint = utils.readEnvironmentVariable('MELINDA_API', 'http://lib
 const datastoreAPI = utils.readEnvironmentVariable('DATASTORE_API', 'http://localhost:8080');
 
 const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl);
-const dataStoreService = DataStoreService.createDataStoreService(datastoreAPI);
+const dataStoreService = DataStoreConnector.createDataStoreConnector(datastoreAPI);
 
 start().catch(error => { 
   logger.log('error', error.message, error);
@@ -58,7 +58,7 @@ async function start() {
 
   const candidateQueueConnection = await amqp.connect(CANDIDATE_QUEUE_AMQP_HOST);
   const channel = await candidateQueueConnection.createChannel();
-  const candidateQueueService = CandidateQueueService.createCandidateQueueService(channel);
+  const candidateQueueService = CandidateQueueConnector.createCandidateQueueConnector(channel);
   const onChangeService = new OnChangeService(alephRecordService, dataStoreService, candidateQueueService);
 
   const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreService, onChange);
