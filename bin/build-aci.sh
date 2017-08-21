@@ -15,7 +15,7 @@ ACI_NAME="melinda-deduplication-listener-ubuntu"
 ACI_VERSION="1.0.0"
 
 rm -rf aci-build && mkdir aci-build &&
-npm install &&
+npm install --ignore-scripts && 
 npm run build && cp -rp build aci-build/app &&
 
 cat <<EOF > aci-build/nodesource.list
