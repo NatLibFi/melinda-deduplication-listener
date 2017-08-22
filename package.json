@@ -41,6 +41,7 @@
     "express": "^4.15.4",
     "http-status-codes": "^1.2.0",
     "lodash": "^4.17.4",
+    "marc-record-js": "^0.3.2",
     "oracledb": "^1.13.1"
   }
 }
