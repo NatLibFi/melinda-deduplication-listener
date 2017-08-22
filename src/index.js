@@ -40,6 +40,7 @@ const dbConfig = {
 };
 
 const CANDIDATE_QUEUE_AMQP_URL = utils.readEnvironmentVariable('CANDIDATE_QUEUE_AMQP_URL');
+const ADMIN_INTERFACE_HTTP_PORT = utils.readEnvironmentVariable('ADMIN_INTERFACE_HTTP_PORT', 3001);
 
 const XServerUrl = utils.readEnvironmentVariable('X_SERVER');
 const melindaEndpoint = utils.readEnvironmentVariable('MELINDA_API', 'http://libtest1.csc.fi:8992/API');
@@ -56,14 +57,14 @@ async function start() {
   logger.log('info', 'Connecting to oracle');
   const connection = await oracledb.getConnection(dbConfig);
 
-  const candidateQueueConnection = await amqp.connect(CANDIDATE_QUEUE_AMQP_URL);
+  const candidateQueueConnection = await utils.waitAndRetry(() => amqp.connect(CANDIDATE_QUEUE_AMQP_URL));
   const channel = await candidateQueueConnection.createChannel();
   const candidateQueueService = CandidateQueueConnector.createCandidateQueueConnector(channel);
   const onChangeService = new OnChangeService(alephRecordService, dataStoreConnector, candidateQueueService);
 
   const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreConnector, onChange);
 
-  await deduplicationCommandInterface.listen(3001);
+  await deduplicationCommandInterface.listen(ADMIN_INTERFACE_HTTP_PORT);
 
   logger.log('info', 'Creating aleph changelistener');
   const alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
