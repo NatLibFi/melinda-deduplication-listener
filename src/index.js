@@ -26,13 +26,14 @@ const CURSOR_FILE = utils.readEnvironmentVariable('CURSOR_FILE', '.aleph-changel
 const Z106_STASH_PREFIX = utils.readEnvironmentVariable('Z106_STASH_PREFIX', '.z106_stash');
 const CHANGES_QUEUE_FILE = utils.readEnvironmentVariable('CHANGES_QUEUE_FILE', '.aleph-changelistener-changesqueue');
 
-const options = {
+const changeListenerOptions = {
   Z106Bases: Z106_BASES,
   Z115Base: Z115_BASE,
   pollIntervalMs: POLL_INTERVAL_MS,
   cursorSaveFile: CURSOR_FILE,
   Z106StashPrefix: Z106_STASH_PREFIX,
-  changesQueueSaveFile: CHANGES_QUEUE_FILE
+  changesQueueSaveFile: CHANGES_QUEUE_FILE,
+  logger: logger
 };
 
 const dbConfig = {
@@ -69,7 +70,7 @@ async function start() {
   await deduplicationCommandInterface.listen(ADMIN_INTERFACE_HTTP_PORT);
 
   logger.log('info', 'Creating aleph changelistener');
-  const alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
+  const alephChangeListener = await AlephChangeListener.create(connection, changeListenerOptions, onChange);
   
   logger.log('info', 'Starting aleph changelistener');
   alephChangeListener.start();
