@@ -92,7 +92,7 @@ async function start() {
       try {
         switch(change.library) {
           case 'FIN01': return onChangeService.handle(change);
-          default: return Promise.reject(new Error(`Could not find handler for base ${change.library}`));
+          default: throw new Error(`Could not find handler for base ${change.library}`);
         }
       } catch(error) {
         logger.log('error', error.message, error);
