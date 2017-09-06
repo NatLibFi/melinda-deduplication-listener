@@ -90,11 +90,12 @@ async function start() {
       try {
         switch(change.library) {
           case 'FIN01': await onChangeService.handle(change); break;
-          default: throw new Error(`Could not find handler for base ${change.library}`);
+          default: logger.log('warn', `Could not find handler for base ${change.library}`);
         }
       } catch(error) {
+        
         logger.log('error', error.message, error);
-
+        
         if (error.code === 'ECONNREFUSED') {
           throw error;
         }
