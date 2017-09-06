@@ -7,7 +7,7 @@ logger.log('info', 'Starting melinda-deduplication-listener');
 
 const oracledb = require('oracledb');
 oracledb.outFormat = oracledb.OBJECT;
-const _ = require('lodash');
+
 const amqp = require('amqplib');
 
 const AlephChangeListener = require('aleph-change-listener');
@@ -52,8 +52,14 @@ const datastoreAPI = utils.readEnvironmentVariable('DATASTORE_API', 'http://loca
 const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl);
 const dataStoreConnector = DataStoreConnector.createDataStoreConnector(datastoreAPI);
 
+process.on('unhandledRejection', error => {
+  logger.log('error', 'unhandledRejection', error);
+  process.exit(1);
+});
+
 start().catch(error => { 
   logger.log('error', error.message, error);
+  process.exit(1);
 });
 
 async function start() {
@@ -77,25 +83,21 @@ async function start() {
   
   logger.log('info', 'Waiting for changes');
 
-  if (process.env.NODE_ENV == 'dev') {
-    const randomChange = () => ({library: 'FIN01', recordId: _.padStart(10000 + Math.round(Math.random()*300000), 9, '0')});
-    onChange([randomChange()]);
-    setInterval(() => {
-      onChange([randomChange()]);
-    }, 5000);
-  }
-
   async function onChange(changes: Array<Change>) {
     logger.log('verbose', `Handling ${changes.length} changes.`);
 
     for (const change of changes) {
       try {
         switch(change.library) {
-          case 'FIN01': return onChangeService.handle(change);
+          case 'FIN01': await onChangeService.handle(change); break;
           default: throw new Error(`Could not find handler for base ${change.library}`);
         }
       } catch(error) {
         logger.log('error', error.message, error);
+
+        if (error.code === 'ECONNREFUSED') {
+          throw error;
+        }
       }
     }
   }
