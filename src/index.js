@@ -80,6 +80,11 @@ async function start() {
   
   logger.log('info', 'Starting aleph changelistener');
   alephChangeListener.start();
+
+  process.on('SIGTERM', () => {
+    logger.log('info', 'SIGTERM received. Stopping aleph changelistener');
+    alephChangeListener.stop();
+  });
   
   logger.log('info', 'Waiting for changes');
 
