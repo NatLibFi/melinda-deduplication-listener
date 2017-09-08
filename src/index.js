@@ -89,8 +89,7 @@ async function start() {
   logger.log('info', 'Waiting for changes');
 
   async function onChange(changes: Array<Change>) {
-    logger.log('verbose', `Handling ${changes.length} changes.`);
-
+    logger.log('info', `Handling ${changes.length} changes.`);
     for (const change of changes) {
       try {
         switch(change.library) {

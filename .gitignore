@@ -10,3 +10,7 @@ setup_env.sh
 start_ssh*
 aci-build
 .acbuild
+.melinda_FIN01
+libtest_FIN01
+setup_prod_env.sh
+

@@ -15,7 +15,7 @@
     "test:unit": "mocha *.spec.js",
     "test:watch": "mocha *.spec.js -w",
     "flow": "flow",
-    "dev": "concurrently --kill-others 'npm run build:main -- -w' 'npm run build:common -- -w' 'sleep 3 && nodemon -w build build/index.js'"
+    "dev": "concurrently --kill-others 'npm run build:main -- -w' 'npm run build:common -- -w' 'sleep 8 && nodemon -w build build/index.js'"
   },
   "author": "Pasi Tuominen <pasi.tuominen@gmail.com>",
   "license": "ISC",
@@ -34,7 +34,7 @@
     "nodemon": "^1.11.0"
   },
   "dependencies": {
-    "aleph-change-listener": "git+https://github.com/NatLibFi/aleph-change-listener.git#a2167e56cf47e030e9b7a0139d94e7a1e1a84b0f",
+    "aleph-change-listener": "git+https://github.com/NatLibFi/aleph-change-listener.git#50ee3c34ca26e78057dea692aee75b23ef476299",
     "amqplib": "^0.5.1",
     "body-parser": "^1.17.2",
     "debug": "^2.6.8",
