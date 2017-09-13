@@ -34,7 +34,7 @@
     "nodemon": "^1.11.0"
   },
   "dependencies": {
-    "aleph-change-listener": "git+https://github.com/NatLibFi/aleph-change-listener.git#024cd42b1d1b145abe4cf734993094dded552bba",
+    "aleph-change-listener": "git+https://github.com/NatLibFi/aleph-change-listener.git#8bb6e213a1088dacf66381417784c0bc3f158ef2",
     "amqplib": "^0.5.1",
     "body-parser": "^1.17.2",
     "debug": "^2.6.8",
