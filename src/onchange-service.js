@@ -25,7 +25,7 @@ function constructor(alephRecordService: AlephRecordService, dataStoreConnector:
     // read candidates from datastore
     logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId} from data store`);
     const duplicateCandidates = await dataStoreConnector.getDuplicateCandidates(change.library, change.recordId);
-    debug(`Candidates are:\n ${duplicateCandidates}`);
+    debug(`Candidates are:\n ${JSON.stringify(duplicateCandidates)}`);
     
     // push candidates to queue
     logger.log('info', `Pushing duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
