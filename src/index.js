@@ -100,8 +100,7 @@ async function start() {
           default: logger.log('warn', `Could not find handler for base ${change.library}`);
         }
       } catch(error) {
-        
-        logger.log('error', error.message, error);
+        logger.log('error', error.name, error.message, error.stack);
         
         if (error.code === 'ECONNREFUSED') {
           throw error;
