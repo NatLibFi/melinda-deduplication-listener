@@ -2,13 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const HttpStatus = require('http-status-codes');
 const logger = require('melinda-deduplication-common/utils/logger');
-const promisify = require('es6-promisify');
 const _ = require('lodash');
 const MarcRecord = require('marc-record-js');
 
 function createDeduplicationCommandInterface(dataStoreConnector, onChange) {
   const app = express();
-  const listen = promisify(app.listen, app);
+  
   app.use(bodyParser.json({ limit: '1000kb' }));
   app.use((error, req, res, next) => {
     if (error instanceof SyntaxError) {
@@ -116,9 +115,7 @@ function createDeduplicationCommandInterface(dataStoreConnector, onChange) {
     }
   });
 
-  return {
-    listen
-  };
+  return app;
 }
 
 module.exports = {
