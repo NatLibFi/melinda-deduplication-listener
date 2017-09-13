@@ -73,7 +73,7 @@ async function start() {
 
   const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreConnector, onChange);
 
-  await deduplicationCommandInterface.listen(ADMIN_INTERFACE_HTTP_PORT);
+  const httpServer = deduplicationCommandInterface.listen(ADMIN_INTERFACE_HTTP_PORT);
 
   logger.log('info', 'Creating aleph changelistener');
   const alephChangeListener = await AlephChangeListener.create(connection, changeListenerOptions, onChange);
@@ -81,9 +81,15 @@ async function start() {
   logger.log('info', 'Starting aleph changelistener');
   alephChangeListener.start();
 
-  process.on('SIGTERM', () => {
+  process.on('SIGTERM', async () => {
     logger.log('info', 'SIGTERM received. Stopping aleph changelistener');
-    alephChangeListener.stop();
+    await alephChangeListener.stop();
+    httpServer.close();
+    
+    connection.release();
+    await channel.close();
+    await candidateQueueConnection.close();
+    logger.log('info', 'Connections released. Exiting');
   });
   
   logger.log('info', 'Changelistener ready. Waiting for changes.');
@@ -107,5 +113,7 @@ async function start() {
         }
       }
     }
+  
   }
+
 }
