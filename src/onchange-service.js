@@ -5,6 +5,7 @@ import type { DataStoreConnector } from 'types/datastore-connector.flow';
 import type { CandidateQueueConnector } from 'types/candidate-queue-connector.flow';
 
 const logger = require('melinda-deduplication-common/utils/logger');
+const debug = require('debug')('changelistener-onchange');
 
 function constructor(alephRecordService: AlephRecordService, dataStoreConnector: DataStoreConnector, candidateQueueConnector: CandidateQueueConnector): OnChangeService {
 
@@ -12,7 +13,10 @@ function constructor(alephRecordService: AlephRecordService, dataStoreConnector:
 
     // read from aleph
     logger.log('info', `Reading record (${change.library})${change.recordId} from Aleph`);
+    
     const record = await alephRecordService.loadRecord(change.library, change.recordId);
+    debug(`Record is:\n ${record.toString()}`);
+    
 
     // save to datastore
     logger.log('info', `Saving record (${change.library})${change.recordId} to data store`);
@@ -21,7 +25,8 @@ function constructor(alephRecordService: AlephRecordService, dataStoreConnector:
     // read candidates from datastore
     logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId} from data store`);
     const duplicateCandidates = await dataStoreConnector.getDuplicateCandidates(change.library, change.recordId);
-
+    debug(`Candidates are:\n ${duplicateCandidates}`);
+    
     // push candidates to queue
     logger.log('info', `Pushing duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
     await candidateQueueConnector.pushCandidates(duplicateCandidates);

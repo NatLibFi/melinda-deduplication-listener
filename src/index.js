@@ -53,7 +53,7 @@ const alephRecordService = MelindaRecordService.createMelindaRecordService(melin
 const dataStoreConnector = DataStoreConnector.createDataStoreConnector(datastoreAPI);
 
 process.on('unhandledRejection', error => {
-  logger.log('error', 'unhandledRejection', error);
+  logger.log('error', 'unhandledRejection', error.message, error.stack);
   process.exit(1);
 });
 
@@ -86,10 +86,13 @@ async function start() {
     alephChangeListener.stop();
   });
   
-  logger.log('info', 'Waiting for changes');
-
+  logger.log('info', 'Changelistener ready. Waiting for changes.');
+  
   async function onChange(changes: Array<Change>) {
-    logger.log('info', `Handling ${changes.length} changes.`);
+    if (changes.length > 0) {
+      logger.log('info', `Handling ${changes.length} changes.`);
+    }
+
     for (const change of changes) {
       try {
         switch(change.library) {
