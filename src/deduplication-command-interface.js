@@ -5,7 +5,7 @@ const logger = require('melinda-deduplication-common/utils/logger');
 const _ = require('lodash');
 const MarcRecord = require('marc-record-js');
 
-function createDeduplicationCommandInterface(dataStoreConnector, onChange) {
+function createDeduplicationCommandInterface(dataStoreConnector, onChangeService) {
   const app = express();
   
   app.use(bodyParser.json({ limit: '1000kb' }));
@@ -26,13 +26,29 @@ function createDeduplicationCommandInterface(dataStoreConnector, onChange) {
     logger.log('info', 'trigger-change request for record', req.params);
 
     try {
-      const result = await onChange(Array.of({ library: base, recordId }));
+      const result = await onChangeService.onChange({ library: base, recordId });
       res.send(result);
     } catch(error) {
       res.status(HttpStatus.BAD_REQUEST).send(error.message);
     }
   });
 
+  app.post('/trigger-check/:base/:from/:to', async function (req, res) {
+    const base = req.params.base;
+    const recordFrom = parseInt(req.params.from, 10);
+    const recordTo = parseInt(req.params.to, 10);
+
+    const recordIdList = _.range(recordFrom, recordTo).map(id => _.padStart(id, 9, '0'));
+
+    logger.log('info', 'trigger-check request for records', req.params);
+
+    try {
+      onChangeService.triggerCandidateChecks(base, recordIdList);
+      res.send('OK');
+    } catch(error) {
+      res.status(HttpStatus.BAD_REQUEST).send(error.message);
+    }
+  });
 
   app.post('/record/read/:base/:id', async function (req, res) {
     const base = req.params.base;
