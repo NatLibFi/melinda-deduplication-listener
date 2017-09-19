@@ -26,7 +26,7 @@ function createDeduplicationCommandInterface(dataStoreConnector, onChangeService
     logger.log('info', 'trigger-change request for record', req.params);
 
     try {
-      const result = await onChangeService.onChange({ library: base, recordId });
+      const result = await onChangeService.handle({ library: base, recordId });
       res.send(result);
     } catch(error) {
       res.status(HttpStatus.BAD_REQUEST).send(error.message);
