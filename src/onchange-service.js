@@ -18,7 +18,6 @@ function constructor(melindaRecordService: MelindaRecordService, dataStoreConnec
     
     debug(`Record is:\n ${record.toString()}`);
     
-
     // save to datastore
     logger.log('info', `Saving record (${change.library})${change.recordId} to data store`);
     await dataStoreConnector.saveRecord(change.library, change.recordId, record);
@@ -29,14 +28,28 @@ function constructor(melindaRecordService: MelindaRecordService, dataStoreConnec
     debug(`Candidates are:\n ${JSON.stringify(duplicateCandidates)}`);
     
     // push candidates to queue
-    logger.log('info', `Pushing duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
+    logger.log('info', `Pushing ${duplicateCandidates.length} duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
     await candidateQueueConnector.pushCandidates(duplicateCandidates);
     
     logger.log('info', 'Change was handled succesfully');
   }
 
+  async function triggerCandidateChecks(library, recordIdList) {
+    logger.log('info', `Candidate check triggered for ${recordIdList.length} records in ${library}`);
+
+    let amount = 0;
+    for (const recordId of recordIdList) {
+      const duplicateCandidates = await dataStoreConnector.getDuplicateCandidates(library, recordId);
+      await candidateQueueConnector.pushCandidates(duplicateCandidates);
+      amount = amount + duplicateCandidates.length;
+    }
+    logger.log('info', `${amount} Candidates pushed to queue for ${recordIdList.length} records in ${library}`);
+    
+  }
+
   return {
-    handle
+    handle,
+    triggerCandidateChecks
   };
 }
 

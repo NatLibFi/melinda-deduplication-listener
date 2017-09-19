@@ -71,7 +71,7 @@ async function start() {
   const candidateQueueService = CandidateQueueConnector.createCandidateQueueConnector(channel);
   const onChangeService = new OnChangeService(alephRecordService, dataStoreConnector, candidateQueueService);
 
-  const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreConnector, onChange);
+  const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreConnector, onChangeService);
 
   const httpServer = deduplicationCommandInterface.listen(ADMIN_INTERFACE_HTTP_PORT);
 
