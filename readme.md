@@ -1,6 +1,10 @@
+# Listener for deduplication system
 
+Listens changes in Aleph by polling oracle tables. Saves any changed records to the datastore and triggers duplicate checks for them.
 
-# Installation
+Listener is a component in the larger Aleph record deduplication system. See documentation in [melinda-deduplication-common](https://github.com/NatLibFi/melinda-deduplication-common) for an overview of the system.
+
+## Installation
 
 This system requires oracle connections. Check instructions for installing [node-oracledb](https://github.com/oracle/node-oracledb).
 
@@ -32,7 +36,7 @@ node build/index.js
 ```
 
 
-# Running
+## Running
 
 The tnsnames.ora file must be used for connection. This can be done with TNS_ADMIN environment variable.
 
@@ -56,7 +60,7 @@ ALEPH =
 For development use: `npm run dev`
 
 
-## Configuration
+### Configuration
 The following environment variables are used to configure the system:
 
 | name | mandatory | description | default |
