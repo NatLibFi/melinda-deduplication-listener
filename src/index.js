@@ -60,7 +60,7 @@ process.on('unhandledRejection', error => {
 
 const createTimer = require('melinda-deduplication-common/utils/start-stop-timer');
 
-const ONLINE = utils.readEnvironmentVariable('ONLINE', '00:00-21:45, 22:56-22:56');
+const ONLINE = utils.readEnvironmentVariable('ONLINE', '00:00-21:45, 22:30-24:00');
 
 const service = createService();
 
