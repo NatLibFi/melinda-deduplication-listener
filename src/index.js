@@ -57,63 +57,78 @@ process.on('unhandledRejection', error => {
   process.exit(1);
 });
 
-start().catch(error => { 
-  logger.log('error', error.message, error);
-  process.exit(1);
+
+const createTimer = require('melinda-deduplication-common/utils/start-stop-timer');
+
+const ONLINE = utils.readEnvironmentVariable('ONLINE', '00:00-21:45, 22:30-24:00');
+
+const service = createService();
+
+const onlinePoller = createTimer(ONLINE, service, logger);
+
+process.on('SIGTERM', async () => {
+  logger.log('info', 'SIGTERM received. Stopping aleph changelistener');
+  service.stop();
+  clearInterval(onlinePoller);
 });
 
-async function start() {
-  logger.log('info', 'Connecting to oracle');
-  const connection = await oracledb.getConnection(dbConfig);
+function createService() {
+  let alephChangeListener, httpServer, connection, channel, candidateQueueConnection;
 
-  const candidateQueueConnection = await utils.waitAndRetry(() => amqp.connect(CANDIDATE_QUEUE_AMQP_URL));
-  const channel = await candidateQueueConnection.createChannel();
-  const candidateQueueService = CandidateQueueConnector.createCandidateQueueConnector(channel);
-  const onChangeService = new OnChangeService(alephRecordService, dataStoreConnector, candidateQueueService);
+  async function start() {
+    logger.log('info', 'Connecting to oracle');
+    connection = await oracledb.getConnection(dbConfig);
 
-  const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreConnector, onChangeService);
+    candidateQueueConnection = await utils.waitAndRetry(() => amqp.connect(CANDIDATE_QUEUE_AMQP_URL));
+    channel = await candidateQueueConnection.createChannel();
+    const candidateQueueService = CandidateQueueConnector.createCandidateQueueConnector(channel);
+    const onChangeService = new OnChangeService(alephRecordService, dataStoreConnector, candidateQueueService);
 
-  const httpServer = deduplicationCommandInterface.listen(ADMIN_INTERFACE_HTTP_PORT);
+    const deduplicationCommandInterface = DeduplicationCommandInterface.createDeduplicationCommandInterface(dataStoreConnector, onChangeService);
 
-  logger.log('info', 'Creating aleph changelistener');
-  const alephChangeListener = await AlephChangeListener.create(connection, changeListenerOptions, onChange);
-  
-  logger.log('info', 'Starting aleph changelistener');
-  alephChangeListener.start();
+    httpServer = deduplicationCommandInterface.listen(ADMIN_INTERFACE_HTTP_PORT);
 
-  process.on('SIGTERM', async () => {
-    logger.log('info', 'SIGTERM received. Stopping aleph changelistener');
+    logger.log('info', 'Creating aleph changelistener');
+    alephChangeListener = await AlephChangeListener.create(connection, changeListenerOptions, onChange);
+    
+    logger.log('info', 'Starting aleph changelistener');
+    alephChangeListener.start();
+
+    
+    logger.log('info', 'Changelistener ready. Waiting for changes.');
+    
+    async function onChange(changes: Array<Change>) {
+      if (changes.length > 0) {
+        logger.log('info', `Handling ${changes.length} changes.`);
+      }
+
+      for (const change of changes) {
+        try {
+          switch(change.library) {
+            case 'FIN01': await onChangeService.handle(change); break;
+            default: logger.log('warn', `Could not find handler for base ${change.library}`);
+          }
+        } catch(error) {
+          logger.log('error', error.name, error.message, error.stack);
+          
+          if (error.code === 'ECONNREFUSED') {
+            throw error;
+          }
+        }
+      }
+    }
+  }
+
+  async function stop() {
     await alephChangeListener.stop();
     httpServer.close();
     
     connection.release();
     await channel.close();
     await candidateQueueConnection.close();
-    logger.log('info', 'Connections released. Exiting');
-  });
-  
-  logger.log('info', 'Changelistener ready. Waiting for changes.');
-  
-  async function onChange(changes: Array<Change>) {
-    if (changes.length > 0) {
-      logger.log('info', `Handling ${changes.length} changes.`);
-    }
-
-    for (const change of changes) {
-      try {
-        switch(change.library) {
-          case 'FIN01': await onChangeService.handle(change); break;
-          default: logger.log('warn', `Could not find handler for base ${change.library}`);
-        }
-      } catch(error) {
-        logger.log('error', error.name, error.message, error.stack);
-        
-        if (error.code === 'ECONNREFUSED') {
-          throw error;
-        }
-      }
-    }
-  
+    logger.log('info', 'Connections released.');
   }
 
+
+  return { start, stop };
 }
