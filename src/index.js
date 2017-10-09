@@ -57,17 +57,19 @@ process.on('unhandledRejection', error => {
   process.exit(1);
 });
 
+
+const createTimer = require('melinda-deduplication-common/utils/start-stop-timer');
+
+const ONLINE = utils.readEnvironmentVariable('ONLINE', '00:00-21:45, 22:56-22:56');
+
 const service = createService();
 
-service.start().catch(error => { 
-  logger.log('error', error.message, error);
-  process.exit(1);
-});
-
+const onlinePoller = createTimer(ONLINE, service, logger);
 
 process.on('SIGTERM', async () => {
   logger.log('info', 'SIGTERM received. Stopping aleph changelistener');
   service.stop();
+  clearInterval(onlinePoller);
 });
 
 function createService() {
