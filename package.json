@@ -21,7 +21,7 @@
     "build:transpile": "babel src -d dist",
     "build": "npm run clean:build && npm run build:transpile && npm run copy:tnsnames:template",
     "copy:tnsnames:template": "cp tnsnames.ora.template dist",
-    "test": "npm run lint && npm test && flow",
+    "test": "npm run lint && flow",
     "test:unit": "NODE_ENV=test mocha *.spec.js --compilers js:babel-register src/**/*.spec.js",
     "test:watch": "NODE_ENV=test mocha *.spec.js --compilers js:babel-register src/**/*.spec.js -w",
     "dev": "concurrently --kill-others 'npm run build:transpile -- -w' 'sleep 5 && nodemon -w dist dist/index.js'",
@@ -42,8 +42,8 @@
     "nodemon": "^1.11.0"
   },
   "dependencies": {
-    "@natlibfi/melinda-deduplication-common": "^1.0.0",
     "@natlibfi/aleph-change-listener": "^1.0.0",
+    "@natlibfi/melinda-deduplication-common": "^1.0.0",
     "amqplib": "^0.5.1",
     "body-parser": "^1.17.2",
     "debug": "^2.6.8",
