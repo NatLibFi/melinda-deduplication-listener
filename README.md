@@ -1,8 +1,8 @@
-# Listener for deduplication system
+# Listener microservice of Melinda deduplication system [![NPM Version](https://img.shields.io/npm/v/@natlibfi/melinda-deduplication-listener.svg)](https://npmjs.org/package/@natlibfi/melinda-deduplication-listener) [![Build Status](https://travis-ci.org/NatLibFi/melinda-deduplication-listener.svg)](https://travis-ci.org/NatLibFi/melinda-deduplication-listener)
 
-Listens changes in Aleph by polling oracle tables. Saves any changed records to the datastore and triggers duplicate checks for them.
+Listener microservice of Melinda deduplication system. See [documentation(https://natlibfi.github.io/melinda-deduplication).
 
-Listener is a component in the larger Aleph record deduplication system. See documentation in [melinda-deduplication-common](https://github.com/NatLibFi/melinda-deduplication-common) for an overview of the system.
+Listens to changes in Aleph by polling oracle tables. Saves any changed records to the datastore and triggers duplicate checks for them.
 
 ## Installation
 
@@ -79,3 +79,11 @@ The following environment variables are used to configure the system:
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 
 The ORACLE_CONNECT_STRING must match the connection string in the tnsnames.ora file. With above tnsnames.ora it should be "ALEPH".
+
+## License and copyright
+
+Copyright (c) 2017 **University Of Helsinki (The National Library Of Finland)**
+
+This project's source code is licensed under the terms of **Apache License 2.0**.
+
+

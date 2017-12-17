@@ -1,6 +1,5 @@
-build
+dist
 node_modules
-tnsnames.ora
 .auth-sync-service-iterators
 .*stash_*
 .aleph-changelistener-*
