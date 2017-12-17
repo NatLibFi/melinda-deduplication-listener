@@ -31,7 +31,6 @@ const debug = require('debug')('changelistener-onchange');
 function constructor(melindaRecordService: MelindaRecordService, dataStoreConnector: DataStoreConnector, candidateQueueConnector: CandidateQueueConnector): OnChangeService {
 
   async function handle(change) {
-console.log(JSON.stringify(change,null,2));
     // read from aleph
     logger.log('info', `Reading record (${change.library})${change.recordId} from Aleph`);
     const loadRecordOptions = {handle_deleted:1, no_rerouting: 1};
