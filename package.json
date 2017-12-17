@@ -14,8 +14,12 @@
   "engines": {
     "node": ">=7"
   },
-  "main": "index.js",
+  "main": "dist/index",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "prepare": "npm run build",
     "lint": "eslint --fix src",
     "clean:build": "rimraf dist",
     "build:transpile": "babel src -d dist",
