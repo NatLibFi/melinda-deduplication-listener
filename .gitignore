@@ -12,4 +12,5 @@ aci-build
 .melinda_FIN01
 libtest_FIN01
 setup_prod_env.sh
+*.tgz
 

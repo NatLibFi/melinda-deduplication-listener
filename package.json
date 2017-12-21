@@ -1,5 +1,5 @@
 {
-  "name": "@natlibfi/melinda-deduplication-changelistener",
+  "name": "@natlibfi/melinda-deduplication-listener",
   "description": "Listener microservice of Melinda deduplication system",
   "homepage": "https://github.com/natlibfi/melinda-deduplication-listener-melinda",
   "bugs": {
@@ -16,15 +16,16 @@
   },
   "main": "dist/index",
   "files": [
-    "dist"
+    "dist",
+    "bin/start"
   ],
+  "bin": "./bin/start",
   "scripts": {
     "prepare": "npm run build",
     "lint": "eslint --fix src",
     "clean:build": "rimraf dist",
     "build:transpile": "babel src -d dist",
-    "build": "npm run clean:build && npm run build:transpile && npm run copy:tnsnames:template",
-    "copy:tnsnames:template": "cp tnsnames.ora.template dist",
+    "build": "npm run clean:build && npm run build:transpile",
     "test": "npm run lint && flow",
     "test:unit": "NODE_ENV=test mocha *.spec.js --compilers js:babel-register src/**/*.spec.js",
     "test:watch": "NODE_ENV=test mocha *.spec.js --compilers js:babel-register src/**/*.spec.js -w",
@@ -41,13 +42,14 @@
     "eslint": "^4.1.1",
     "eslint-plugin-flowtype": "^2.34.0",
     "eslint-plugin-import": "^2.6.0",
+    "eslint-import-resolver-babel-module": "^3.0.0",
     "flow-bin": "^0.48.0",
     "mocha": "^4.0.1",
     "nodemon": "^1.11.0"
   },
   "dependencies": {
     "@natlibfi/aleph-change-listener": "^1.0.0",
-    "@natlibfi/melinda-deduplication-common": "^1.0.0",
+    "@natlibfi/melinda-deduplication-common": "^2.0.0",
     "amqplib": "^0.5.1",
     "body-parser": "^1.17.2",
     "debug": "^2.6.8",

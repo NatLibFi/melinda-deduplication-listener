@@ -2,39 +2,22 @@
 
 Listener microservice of Melinda deduplication system. See [documentation(https://natlibfi.github.io/melinda-deduplication).
 
-Listens to changes in Aleph by polling oracle tables. Saves any changed records to the datastore and triggers duplicate checks for them.
-
 ## Installation
 
 This system requires oracle connections. Check instructions for installing [node-oracledb](https://github.com/oracle/node-oracledb).
 
-Installation in short:
 
-Oracle instantclient installed into /opt/instantclient_12_2
+_(Oracle instantclient installed into /opt/instantclient_12_2)_
 ```
-export OCI_LIB_DIR=/opt/instantclient_12_2
-export OCI_INC_DIR=/opt/instantclient_12_2/sdk/include
-
-npm install
-
+OCI_LIB_DIR=/opt/instantclient_12_2 OCI_INC_DIR=/opt/instantclient_12_2/sdk/include npm install
+npm run build
 ```
 
-Build the application: 
+### Building a container image
+([acbuild](https://github.com/containers/build) must be in PATH)
 ```
-npm run build 
+bin/build-aci.sh
 ```
-
-Intall dependences for the built application:
-```
-cd build
-npm install --prod
-```
-
-The build result will be in `build/` directory and is runnable from there. For example:
-```
-node build/index.js
-```
-
 
 ## Running
 
@@ -42,7 +25,7 @@ The tnsnames.ora file must be used for connection. This can be done with TNS_ADM
 
 Example, assuming that tnsnames.ora is in `pwd`:
 ```
-TNS_ADMIN=`pwd` LD_LIBRARY_PATH=/opt/instantclient_12_2/ node index.js
+TNS_ADMIN=`pwd` LD_LIBRARY_PATH=/opt/instantclient_12_2/ bin/start
 ```
 
 Example of tnsnames.ora 

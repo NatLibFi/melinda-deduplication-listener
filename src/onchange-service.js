@@ -23,6 +23,7 @@
 import type { OnChangeService } from './onchange-service.flow';
 import type { MelindaRecordService } from '@natlibfi/melinda-deduplication-common/types/melinda-record-service.flow';
 import type { DataStoreConnector } from '@natlibfi/melinda-deduplication-common/types/datastore-connector.flow';
+import type { Change } from '@natlibfi/melinda-deduplication-common/types/change.flow';
 import type { CandidateQueueConnector } from '@natlibfi/melinda-deduplication-common/types/candidate-queue-connector.flow';
 
 const logger = require('@natlibfi/melinda-deduplication-common/utils/logger');
@@ -35,12 +36,13 @@ function constructor(melindaRecordService: MelindaRecordService, dataStoreConnec
     logger.log('info', `Reading record (${change.library})${change.recordId} from Aleph`);
     const loadRecordOptions = {handle_deleted:1, no_rerouting: 1};
     const record = await melindaRecordService.loadRecord(change.library, change.recordId, loadRecordOptions);
+    const { changeType, changeTimestamp } = getChangeMetadata(change);
     
     debug(`Record is:\n ${record.toString()}`);
     
     // save to datastore
     logger.log('info', `Saving record (${change.library})${change.recordId} to data store`);
-    await dataStoreConnector.saveRecord(change.library, change.recordId, record);
+    await dataStoreConnector.saveRecord(change.library, change.recordId, record, changeType, changeTimestamp);
 
     // read candidates from datastore
     logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId} from data store`);
@@ -52,6 +54,18 @@ function constructor(melindaRecordService: MelindaRecordService, dataStoreConnec
     await candidateQueueConnector.pushCandidates(duplicateCandidates);
     
     logger.log('info', 'Change was handled succesfully');
+    
+    function getChangeMetadata(change: Change) {
+      const Z106 = change.meta.Z106;
+      const Z115 = change.meta.Z115;
+      if (Z106 && Z115) {
+        return { changeType: 'CONTENT_AND_METADATA', changeTimestamp: Z106.date.isSameOrAfter(Z115.date) ? Z106.date : Z115.date };
+      } else if (Z106) {
+        return { changeType: 'CONTENT', changeTimestamp: Z106.date };
+      } else {
+        return { changeType: 'METADATA', changeTimestamp: Z115.date };
+      }
+    }
   }
 
   async function triggerCandidateChecks(library, recordIdList) {
@@ -64,7 +78,7 @@ function constructor(melindaRecordService: MelindaRecordService, dataStoreConnec
       amount = amount + duplicateCandidates.length;
     }
     logger.log('info', `${amount} Candidates pushed to queue for ${recordIdList.length} records in ${library}`);
-    
+        
   }
 
   return {

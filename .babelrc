@@ -3,10 +3,18 @@
     "targets": {
       "node": "7"
     }
-  }]],
-  "plugins": [["module-resolver", {
-    "alias": {
-      "@natlibfi/melinda-deduplication-common": "./node_modules/@natlibfi/melinda-deduplication-common/dist"
+    }]
+  ],
+  "plugins": [
+    ["module-resolver", {
+      "alias": {
+        "@natlibfi/melinda-deduplication-common": "@natlibfi/melinda-deduplication-common/dist"
+      }
+      }]
+    ],
+    "env": {
+      "test": {
+        "plugins": ["rewire"]
+      }
     }
-    }]]
-}
+  }
