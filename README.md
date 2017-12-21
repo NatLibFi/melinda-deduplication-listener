@@ -1,6 +1,6 @@
 # Listener microservice of Melinda deduplication system [![NPM Version](https://img.shields.io/npm/v/@natlibfi/melinda-deduplication-listener.svg)](https://npmjs.org/package/@natlibfi/melinda-deduplication-listener) [![Build Status](https://travis-ci.org/NatLibFi/melinda-deduplication-listener.svg)](https://travis-ci.org/NatLibFi/melinda-deduplication-listener)
 
-Listener microservice of Melinda deduplication system. See [documentation(https://natlibfi.github.io/melinda-deduplication).
+Listener microservice of Melinda deduplication system. See [documentation](https://natlibfi.github.io/melinda-deduplication).
 
 ## Installation
 
