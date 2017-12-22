@@ -1,4 +1,4 @@
-env#!/bin/bash
+#!/bin/bash
 set -ex
 ACBUILD_CMD="acbuild --no-history"
 
