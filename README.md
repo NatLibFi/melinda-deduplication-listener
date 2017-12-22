@@ -1,40 +1,23 @@
-# Listener for deduplication system
+# Listener microservice of Melinda deduplication system [![NPM Version](https://img.shields.io/npm/v/@natlibfi/melinda-deduplication-listener.svg)](https://npmjs.org/package/@natlibfi/melinda-deduplication-listener) [![Build Status](https://travis-ci.org/NatLibFi/melinda-deduplication-listener.svg)](https://travis-ci.org/NatLibFi/melinda-deduplication-listener)
 
-Listens changes in Aleph by polling oracle tables. Saves any changed records to the datastore and triggers duplicate checks for them.
-
-Listener is a component in the larger Aleph record deduplication system. See documentation in [melinda-deduplication-common](https://github.com/NatLibFi/melinda-deduplication-common) for an overview of the system.
+Listener microservice of Melinda deduplication system. See [documentation](https://natlibfi.github.io/melinda-deduplication).
 
 ## Installation
 
 This system requires oracle connections. Check instructions for installing [node-oracledb](https://github.com/oracle/node-oracledb).
 
-Installation in short:
 
-Oracle instantclient installed into /opt/instantclient_12_2
+_(Oracle instantclient installed into /opt/instantclient_12_2)_
 ```
-export OCI_LIB_DIR=/opt/instantclient_12_2
-export OCI_INC_DIR=/opt/instantclient_12_2/sdk/include
-
-npm install
-
+OCI_LIB_DIR=/opt/instantclient_12_2 OCI_INC_DIR=/opt/instantclient_12_2/sdk/include npm install
+npm run build
 ```
 
-Build the application: 
+### Building a container image
+([acbuild](https://github.com/containers/build) must be in PATH)
 ```
-npm run build 
+bin/build-aci.sh
 ```
-
-Intall dependences for the built application:
-```
-cd build
-npm install --prod
-```
-
-The build result will be in `build/` directory and is runnable from there. For example:
-```
-node build/index.js
-```
-
 
 ## Running
 
@@ -42,7 +25,7 @@ The tnsnames.ora file must be used for connection. This can be done with TNS_ADM
 
 Example, assuming that tnsnames.ora is in `pwd`:
 ```
-TNS_ADMIN=`pwd` LD_LIBRARY_PATH=/opt/instantclient_12_2/ node index.js
+TNS_ADMIN=`pwd` LD_LIBRARY_PATH=/opt/instantclient_12_2/ bin/start
 ```
 
 Example of tnsnames.ora 
@@ -79,3 +62,11 @@ The following environment variables are used to configure the system:
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 
 The ORACLE_CONNECT_STRING must match the connection string in the tnsnames.ora file. With above tnsnames.ora it should be "ALEPH".
+
+## License and copyright
+
+Copyright (c) 2017 **University Of Helsinki (The National Library Of Finland)**
+
+This project's source code is licensed under the terms of **Apache License 2.0**.
+
+

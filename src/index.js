@@ -1,8 +1,29 @@
+/**
+ * @licstart  The following is the entire license notice for the JavaScript code in this file. 
+ *
+ * Copyright 2017 University Of Helsinki (The National Library Of Finland)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @licend  The above is the entire license notice
+ * for the JavaScript code in this page.
+*/
+
 // @flow
 
-import type { Change } from 'types/change.flow';
+import type { Change } from '@natlibfi/melinda-deduplication-common/types';
 
-const logger = require('melinda-deduplication-common/utils/logger');
+const logger = require('@natlibfi/melinda-deduplication-common/utils/logger');
 logger.log('info', 'Starting melinda-deduplication-listener');
 
 const oracledb = require('oracledb');
@@ -10,12 +31,13 @@ oracledb.outFormat = oracledb.OBJECT;
 
 const amqp = require('amqplib');
 
-const AlephChangeListener = require('aleph-change-listener');
-const MelindaRecordService = require('melinda-deduplication-common/utils/melinda-record-service');
-const CandidateQueueConnector = require('melinda-deduplication-common/utils/candidate-queue-connector');
-const DataStoreConnector = require('melinda-deduplication-common/utils/datastore-connector');
+const AlephChangeListener = require('@natlibfi/aleph-change-listener');
+const MelindaRecordService = require('@natlibfi/melinda-deduplication-common/utils/melinda-record-service');
+const CandidateQueueConnector = require('@natlibfi/melinda-deduplication-common/utils/candidate-queue-connector');
+const DataStoreConnector = require('@natlibfi/melinda-deduplication-common/utils/datastore-connector');
 
-const utils = require('melinda-deduplication-common/utils/utils');
+const utils = require('@natlibfi/melinda-deduplication-common/utils/utils');
+const createTimer = require('@natlibfi/melinda-deduplication-common/utils/start-stop-timer');
 const OnChangeService = require('./onchange-service');
 const DeduplicationCommandInterface = require('./deduplication-command-interface');
 
@@ -58,12 +80,8 @@ process.on('unhandledRejection', error => {
 });
 
 
-const createTimer = require('melinda-deduplication-common/utils/start-stop-timer');
-
 const ONLINE = utils.readEnvironmentVariable('ONLINE', '00:00-21:45, 22:30-24:00');
-
 const service = createService();
-
 const onlinePoller = createTimer(ONLINE, service, logger);
 
 process.on('SIGTERM', async () => {

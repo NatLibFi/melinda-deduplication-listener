@@ -1,40 +1,55 @@
 {
-  "name": "melinda-deduplication-changelistener",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "postinstall": "cd melinda-deduplication-common && npm install",
-    "build": "npm run build:main && npm run build:common && npm run copy:main:packagejson && npm run copy:common:packagejson && npm run copy:tnsnames:template",
-    "build:main": "cd src && babel . -d ../build/",
-    "build:common": "babel melinda-deduplication-common --ignore node_modules,spec.js --out-dir build/melinda-deduplication-common --source-maps",
-    "copy:main:packagejson": "cp package.json build",
-    "copy:common:packagejson": "cp melinda-deduplication-common/package.json build/melinda-deduplication-common/package.json",
-    "copy:tnsnames:template": "cp tnsnames.ora.template build",
-    "test": "npm run flow",
-    "test:unit": "mocha *.spec.js",
-    "test:watch": "mocha *.spec.js -w",
-    "flow": "flow",
-    "dev": "concurrently --kill-others 'npm run build:main -- -w' 'npm run build:common -- -w' 'sleep 8 && nodemon -w build build/index.js'"
+  "name": "@natlibfi/melinda-deduplication-listener",
+  "description": "Listener microservice of Melinda deduplication system",
+  "homepage": "https://github.com/natlibfi/melinda-deduplication-listener-melinda",
+  "bugs": {
+    "url": "https://github.com/natlibfi/melinda-deduplication-listener-melinda/issues"
   },
-  "author": "Pasi Tuominen <pasi.tuominen@gmail.com>",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:natlibfi/melinda-deduplication-listener-melinda.git"
+  },
+  "license": "Apache-2.0",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=7"
+  },
+  "main": "dist/index",
+  "files": [
+    "dist",
+    "bin/start"
+  ],
+  "bin": "./bin/start",
+  "scripts": {
+    "prepare": "npm run build",
+    "lint": "eslint --fix src",
+    "clean:build": "rimraf dist",
+    "build:transpile": "babel src -d dist",
+    "build": "npm run clean:build && npm run build:transpile",
+    "test": "npm run lint && flow",
+    "test:unit": "NODE_ENV=test mocha *.spec.js --compilers js:babel-register src/**/*.spec.js",
+    "test:watch": "NODE_ENV=test mocha *.spec.js --compilers js:babel-register src/**/*.spec.js -w",
+    "dev": "concurrently --kill-others 'npm run build:transpile -- -w' 'sleep 5 && nodemon -w dist dist/index.js'",
+    "publish-to-npm": "npm test && npm publish --access=public"
+  },
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
-    "babel-plugin-module-resolver": "^2.7.1",
-    "babel-preset-es2015": "^6.24.1",
+    "babel-plugin-module-resolver": "^3.0.0",
+    "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "concurrently": "^3.5.0",
     "eslint": "^4.1.1",
-    "eslint-import-resolver-babel-module": "^3.0.0",
     "eslint-plugin-flowtype": "^2.34.0",
     "eslint-plugin-import": "^2.6.0",
+    "eslint-import-resolver-babel-module": "^3.0.0",
     "flow-bin": "^0.48.0",
+    "mocha": "^4.0.1",
     "nodemon": "^1.11.0"
   },
   "dependencies": {
-    "aleph-change-listener": "git+https://github.com/NatLibFi/aleph-change-listener.git#5c5b6f7e25cad6300218b15dd09591ab1404f290",
+    "@natlibfi/aleph-change-listener": "^1.0.0",
+    "@natlibfi/melinda-deduplication-common": "^2.0.0",
     "amqplib": "^0.5.1",
     "body-parser": "^1.17.2",
     "debug": "^2.6.8",

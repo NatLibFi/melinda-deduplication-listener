@@ -1,6 +1,5 @@
-build
+dist
 node_modules
-tnsnames.ora
 .auth-sync-service-iterators
 .*stash_*
 .aleph-changelistener-*
@@ -13,4 +12,5 @@ aci-build
 .melinda_FIN01
 libtest_FIN01
 setup_prod_env.sh
+*.tgz
 
