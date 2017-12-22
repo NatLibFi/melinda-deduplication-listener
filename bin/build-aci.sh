@@ -1,4 +1,4 @@
-#!/bin/bash
+env#!/bin/bash
 set -ex
 ACBUILD_CMD="acbuild --no-history"
 
@@ -44,7 +44,7 @@ $ACBUILD_CMD label add os $ACI_OS
 $ACBUILD_CMD label add arch $ACI_ARCH
 
 $ACBUILD_CMD set-working-directory $APP_DIRECTORY
-$ACBUILD_CMD set-event-handler pre-start -- /bin/bash -c 'cat tnsnames.ora.template | sed -e "s/%/|/g" -e "s/|HOST|/$HOST/g" -e "s/|SID|/$SID/g" -e "s/|PORT|/$PORT/g" > tnsnames.ora'
+$ACBUILD_CMD set-event-handler pre-start -- /bin/bash -c 'echo "127.0.0.1 $(hostname)" > /etc/hosts && cp tnsnames.ora.template tnsnames.ora && sed -i -e "s/%/|/g" -e "s/|HOST|/$HOST/g" -e "s/|SID|/$SID/g" -e "s/|PORT|/$PORT/g" tnsnames.ora'
 $ACBUILD_CMD set-exec -- /bin/bash -c "node_modules/$NPM_PACKAGE_NAME/bin/start 2>&1 | tee -a logs/$NPM_PACKAGE_LOCAL_NAME.log"
 
 $ACBUILD_CMD port add http tcp 80
