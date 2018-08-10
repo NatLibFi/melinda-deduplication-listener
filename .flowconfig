@@ -1,13 +1,8 @@
 [ignore]
-./build
+./dist
 
 [include]
 
 [libs]
-node_modules/*
-melinda-deduplication-common/node_modules/*
 
 [options]
-module.system.node.resolve_dirname=node_modules
-module.system.node.resolve_dirname=melinda-deduplication-common
-module.system.node.resolve_dirname=.

@@ -1,6 +1,6 @@
 // @flow
-import type { Change } from 'types/change.flow';
+import {Types} from '@natlibfi/melinda-deduplication-common';
 
 export type OnChangeService = {
-    handle: (change: Change) => Promise<any>
+    handle: (change: Types.Change) => Promise<any>
 };

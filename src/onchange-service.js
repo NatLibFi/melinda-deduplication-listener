@@ -1,56 +1,52 @@
 // @flow
-import type { OnChangeService } from './onchange-service.flow';
-import type { MelindaRecordService } from 'types/melinda-record-service.flow';
-import type { DataStoreConnector } from 'types/datastore-connector.flow';
-import type { CandidateQueueConnector } from 'types/candidate-queue-connector.flow';
+import debug from 'debug';
+import type {OnChangeService} from './onchange-service.flow';
+import {Types, Utils as UtilsIndex} from '@natlibfi/melinda-deduplication-common';
 
-const logger = require('melinda-deduplication-common/utils/logger');
-const debug = require('debug')('changelistener-onchange');
+const {Logger} = UtilsIndex;
+const debugLog = debug('changelistener-onchange');
 
-function constructor(melindaRecordService: MelindaRecordService, dataStoreConnector: DataStoreConnector, candidateQueueConnector: CandidateQueueConnector): OnChangeService {
+function constructor(melindaRecordService: Types.MelindaRecordService, dataStoreConnector: Types.DataStoreConnector, candidateQueueConnector: Types.CandidateQueueConnector): OnChangeService {
+	async function handle(change) {
+		// Read from aleph
+		Logger.log('info', `Reading record (${change.library})${change.recordId} from Aleph`);
+		const loadRecordOptions = {handle_deleted: 1, no_rerouting: 1}; // eslint-disable-line camelcase
+		const record = await melindaRecordService.loadRecord(change.library, change.recordId, loadRecordOptions);
 
-  async function handle(change) {
+		debugLog(`Record is:\n ${record.toString()}`);
 
-    // read from aleph
-    logger.log('info', `Reading record (${change.library})${change.recordId} from Aleph`);
-    const loadRecordOptions = {handle_deleted:1, no_rerouting: 1};
-    const record = await melindaRecordService.loadRecord(change.library, change.recordId, loadRecordOptions);
-    
-    debug(`Record is:\n ${record.toString()}`);
-    
-    // save to datastore
-    logger.log('info', `Saving record (${change.library})${change.recordId} to data store`);
-    await dataStoreConnector.saveRecord(change.library, change.recordId, record);
+		// Save to datastore
+		Logger.log('info', `Saving record (${change.library})${change.recordId} to data store`);
+		await dataStoreConnector.saveRecord(change.library, change.recordId, record);
 
-    // read candidates from datastore
-    logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId} from data store`);
-    const duplicateCandidates = await dataStoreConnector.getDuplicateCandidates(change.library, change.recordId);
-    debug(`Candidates are:\n ${JSON.stringify(duplicateCandidates)}`);
-    
-    // push candidates to queue
-    logger.log('info', `Pushing ${duplicateCandidates.length} duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
-    await candidateQueueConnector.pushCandidates(duplicateCandidates);
-    
-    logger.log('info', 'Change was handled succesfully');
-  }
+		// Read candidates from datastore
+		Logger.log('info', `Reading duplicate candidates for record (${change.library})${change.recordId} from data store`);
+		const duplicateCandidates = await dataStoreConnector.getDuplicateCandidates(change.library, change.recordId);
+		debugLog(`Candidates are:\n ${JSON.stringify(duplicateCandidates)}`);
 
-  async function triggerCandidateChecks(library, recordIdList) {
-    logger.log('info', `Candidate check triggered for ${recordIdList.length} records in ${library}`);
+		// Push candidates to queue
+		Logger.log('info', `Pushing ${duplicateCandidates.length} duplicate candidates for record (${change.library})${change.recordId} to the candidate queue`);
+		await candidateQueueConnector.pushCandidates(duplicateCandidates);
 
-    let amount = 0;
-    for (const recordId of recordIdList) {
-      const duplicateCandidates = await dataStoreConnector.getDuplicateCandidates(library, recordId);
-      await candidateQueueConnector.pushCandidates(duplicateCandidates);
-      amount = amount + duplicateCandidates.length;
-    }
-    logger.log('info', `${amount} Candidates pushed to queue for ${recordIdList.length} records in ${library}`);
-    
-  }
+		Logger.log('info', 'Change was handled succesfully');
+	}
 
-  return {
-    handle,
-    triggerCandidateChecks
-  };
+	async function triggerCandidateChecks(library, recordIdList) {
+		Logger.log('info', `Candidate check triggered for ${recordIdList.length} records in ${library}`);
+
+		let amount = 0;
+		for (const recordId of recordIdList) {
+			const duplicateCandidates = await dataStoreConnector.getDuplicateCandidates(library, recordId); // eslint-disable-line no-await-in-loop
+			await candidateQueueConnector.pushCandidates(duplicateCandidates); // eslint-disable-line no-await-in-loop
+			amount += duplicateCandidates.length;
+		}
+		Logger.log('info', `${amount} Candidates pushed to queue for ${recordIdList.length} records in ${library}`);
+	}
+
+	return {
+		handle,
+		triggerCandidateChecks
+	};
 }
 
 module.exports = constructor;
